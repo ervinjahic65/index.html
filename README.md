@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 
-    <head>
-	    <title>HTML sajt</title>
-		<meta charset="UTF-8">
-	</head>
+<head>
+<title>HTML sajt</title>
+<meta charset="UTF-8">
+</head>
 	
-	<body>
+<body>
   
    <div id="wrapper">
    
