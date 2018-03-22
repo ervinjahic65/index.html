@@ -1,2 +1,2 @@
-Simpe web app, feel free to use this code.
+Simpe web apps, feel free to use this code.
 
