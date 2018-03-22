@@ -1,0 +1,194 @@
+@charset "utf-8";
+/* CSS Document */
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 14px;
+	background-attachment: fixed;
+	background-repeat: repeat;
+	background-image: url(../img/pattern.jpg);
+}
+h1, h2 {
+	font-weight: normal;
+	margin: 0.3em 0 0.5em;
+}
+h1 { font-size: 38px;}
+h2 { font-size: 30px;
+}
+#wrapper {
+	width:950px;
+	padding:15px;
+	margin:30px auto;
+	background:#FFF;
+	box-shadow:0 2px 5px #50E774;
+}
+#header {
+	background: #5E82E4;
+	margin-bottom:15px;
+	padding:20px;
+	overflow:hidden;
+}
+#header h1{
+	text-align:center;
+	color:#F7F7F7;
+}
+#nav {
+	height:40px;
+	background:#534741;
+	margin-bottom:15px;
+}
+#nav ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+#nav ul li {
+	float:left;
+}
+#nav ul li a {
+	padding:10px;
+	height:20px;
+	line-height: 20px;
+	display: block;
+}
+#nav ul li a:link,
+#nav ul li a:visited {
+	color:#19ACC4;
+	text-decoration: none;
+}
+#nav ul li a:hover {
+	color:#1C6AC7;
+	background:#064664;
+}
+#nav ul li a:active {
+	color:#148ACC;
+	background:#AAAAAA;
+}
+#main {
+	background:#FFF;
+	float:left;
+	width:660px;
+	margin-bottom:15px;
+}
+#main h1, h2{
+	text-align:center;
+	color:#08183F;
+}
+#main p{
+	text-align:left;
+	color:#868686;
+}
+#main .block h1 {
+	background:#BBBBBB;
+	color: #FFF;
+	padding: 3px;
+}
+#main .block h2{
+	background:#BBBBBB;
+	color: #FFF;
+	padding: 3px;
+}
+.sidePic{
+	padding-left: 20px;
+	padding-bottom: 10px;		
+}
+#sidebar {
+	background:#BBBBBB;
+	float:right;
+	width:280px;
+	margin-bottom:15px;
+	position: relative;
+}
+#sidebar h2{
+	color: #FFF;
+	background-color: #DDD;	
+}
+#sidebar ol li{
+	text-align:left;
+	color:#E6EAED;
+}
+#sidebar p{
+	color:#969696;
+	padding:10px;
+	color: #ECECEC;
+	text-align:left;
+}
+
+#footer {
+	background:#534741;
+	clear:both;
+	text-align: center;
+	color: #CCCCCC;
+	font-size: 12px;
+	padding: 8px;
+}
+#footer p{
+	margin: 0;	
+}
+#wrapper #main .block {
+}
+
+th {
+	text-align: left;
+}
+
+table, th, td {
+	border: 1px solid #000;
+	border-collapse: collapse;
+}
+
+ th, td {
+	padding: 10px;
+	
+}
+
+tr:nth-child(even) {
+	background-color: #FFF;
+} 
+
+tr:nth-child(odd) {
+	background-color: #DDD;
+} 
+
+form {
+	width: 260px;
+}
+
+input {
+	width: 100%;
+}
+
+textarea {
+	resize: vertical;
+	max-height: 70px;
+}
+
+input, textarea {
+	outline: none;
+	border: 1px solid #DDD;
+}
+
+input:focus, textarea:focus {
+	box-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
+	border: 1px solid rgb(255, 0, 0);
+}
+
+::placeholder {
+	color: red;
+	opacity: 1;
+}
+
+:-ms-input-placeholder {
+	color: red;
+}
+
+::-ms-input-placeholder {
+	color: red;
+	opacity: 1;
+}
+
+
+
+
