@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Math game</title>
+		<style>
+			body {
+				background-image:url('img/cloud.gif');
+				background-image:repeat;
+				text-align: center;
+			}
+			#div1 {
+				width:220px;
+				border:1px solid green;
+				background-color:#fff;
+				margin:auto;
+			}
+			#div1 img {
+				width:100%;
+			}
+		</style>
+    </head>
+    <body>
+	<div id="div1">
+        <script>
+            var score = 0;
+            var a, b, answer, result, math_operation;
+            (function play(){
+                a = Math.ceil(Math.random() * 10);
+                b = Math.ceil(Math.random() * 10);
+                math_operation = Math.ceil(Math.random() * 10);
+                    if (math_operation > 5) {
+                        result = a * b;
+                        math_operation = "*";
+                    }else{
+                        result = a + b;
+                        math_operation = "+";
+                    }
+                answer = prompt("Calculate the value of: \n" + a + " " + math_operation + " " + b);
+                if (answer == result) {
+                    score += 10;
+                    document.write(a + " " + math_operation + " " + b + " = " + result + "<br/>");
+                    play();
+                }else{
+                    var play_again = confirm("GAME OVER!\nYour score is: " + score + "\n\nIf you want to play again click OK.");
+                    if (play_again) {
+                        location.reload();
+                    }else{
+                        document.write("Your score is: " + score + "<br/>");
+                        if (score > 50) {
+                            document.write("<img src='img/cup.gif'/>");
+                        }else{
+							document.write("<img src='img/game_over.png'/>");
+						}
+						document.write('<input type="button" value="Play again" onClick="window.location.reload()">');
+                    }
+                }
+            })();
+        </script>
+		</div>
+        
+    </body>
+</html>
