@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery events</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <style>
+        #text {
+            border: 1px solid #696969;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <img src="fb.png" alt="Facebook" width="50px"/>
+    <img src="tw.png" alt="Twitter" width="50px"/>
+    <img src="yt.png" alt="YouTube" width="50px"/>
+    <img src="pi.png" alt="Pinterest" width="50px"/>
+    <img src="in.png" alt="LinkedIn" width="50px"/></br>
+    <button>Hide</button>
+    <button>Show</button>
+    <button>Toggle</button>
+    <button>fadeIn</button>
+    <button>fadeOut</button>
+    <button>slideUp</button>
+    <button>slideDown</button>
+    <button>fadeToggle</button>
+    <button>slideToggle</button>
+    <div id="text">This is text div:</br></div>
+    <div><p><span id="info"></span></span></p></div>
+    <script>
+        var description = {
+            Facebook : "Facebook is an online social networking service headquartered in Menlo Park, California.",
+            Twitter : "Twitter is an online social networking service that enables users to send and read short 140-character messages called \"tweets\".",
+            YouTube : "YouTube is a video-sharing website headquartered in San Bruno, California, United States.",
+            Pinterest : "Pinterest is a web and mobile application company, which operates an eponymous photo sharing website.",
+            LinkedIn : "LinkedIn is a business-oriented social networking service.",
+        };
+        
+        $("img").on("mouseover", function(){
+            $("#info").text(description[$(this).attr("alt")]);
+            $(this).animate({
+                opacity: 0.25,
+             });
+        }).on("mouseout", function(){
+            $("#info").text("");
+            $(this).animate({
+                opacity: 1,
+             });
+        }).on("click", function(){
+            $("#text").append(description[$(this).attr("alt")] + "<br>");  
+        });
+        
+        $("button").on("click", function(){
+            switch ($(this).text()) {
+                case "Hide":
+                    $("#text").hide("fast");
+                break;
+                case "Show":
+                    $("#text").show(2000);
+                break;
+                case "Toggle":
+                    $("#text").toggle("slow");
+                break;
+                case "fadeIn":
+                    $("#text").fadeIn(2000);
+                break;
+                case "fadeOut":
+                    $("#text").fadeOut(2000);
+                break;
+                case "slideUp":
+                    $("#text").slideUp(500);
+                break;
+                case "slideDown":
+                    $("#text").slideDown(500);
+                break;
+                case "fadeToggle":
+                    $("#text").fadeToggle(500);
+                break;
+                case "slideToggle":
+                    $("#text").slideToggle(500);
+                break;
+            }
+        })
+    </script>
+</body>
+</html>
