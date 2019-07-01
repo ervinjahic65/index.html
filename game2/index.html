@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+</head>
+<body>
+<div style="position:absolute; top:530px"><p>Score: <span id="score">0</span></p></div>
+<script>
+var posX=0; //Početna pozicija kugle po horizontali
+var posY=80; //Početna pozicija kugle po vertikali
+var xNegative=false; //smer kretanja kugle po horizontali
+var yNegative=false; //smer kretanja kugle po vertikali
+var time=0; //Aktuelni frame. Potreban za dalji razvoj igre. Može biti izbačen iz svih delova koda.
+var bricks =new Array(); //niz cigala
+var active=true; //Uključivanje ili isključivanje igre
+var score = 0; //Rezultat, za svaku pogođenu ciglu će se povećavati za 10
+var scoreText = document.getElementById("score"); //Selektovanje taga u kom će biti prikazan rezultat.
+
+function mainLoop(){ //Glavna petlja
+	if(!active) return; //Ukoliko igrica nije aktivna, neće vratiti ništa, aukoliko jeste prebrojava frejm
+	time++; //Povećanje promenljive time za 1 kako bi se uračunao novi frejm
+	frameRender(); //Poziv funkcije frameRender koja se bavi prikazom novog frajma, odnosno izmenama prikaza na strani
+	setTimeout("mainLoop()",10); //Podešavamo setTimeout za ponovni poziv mainLoop() funkcije, na 10 milisekundi
+}
+
+function tileHit(){ // Funkcija za okretanje smera po y osi negativno usled udarca u pločicu koju pokrećemo
+	yNegative=true; //Okretanje smera projektila po y osi
+}
+
+function brickHit(brick){ //Funcija za definisanje događaja nakon udarca u pločicu
+	yNegative=false; //okrećemo smer po y osi pozitivno
+	//clip.removeChild(brick); - Ukoliko se ne kosristimo jQuery bibliotekom i ne želimo animaciju priliko udarca možemo ukinuti komentar sa ove linije kada će element jednostavno nestati
+	//jQuery bibliotekom ćemo se više baviti u narednim lekcijama
+	$(brick).toggle("explode"); // Ukoliko se ipak služimo jQuery bibliotekom kao što je to naš slučaj, uz pomoć metode explode() možemo postići efekat eksplozije elementa koji nestaje
+	bricks.splice(bricks.indexOf(brick),1); //nakon uklanjanja elementa zbog udarca treba ga ukloniti i iz niza. Naš niz za cigle je bricks te zato nad ovim nizom pozivamo metodu splice.
+	//Potrebno je odrediti poziciju elementa koji uklanjamo i zato koristimo metodu indexOf nad nizom i prosleđujemo joj parametar brick koji je funkcija primila i koji predstavlja indeks cigle
+}
+
+function gameOver(){ //Funkcija koja se pokreće na kraju igre.
+	if(confirm("Game is over. Do you want to play again?")){ //Postavlkamo pitanje korisniku o tome da li želi ponovo da igra.
+	//Ukoliko korisnik želi ponovo da igra definišemo nove počene paraetre za igru kao na samom početku programa
+		posX=0;
+		posY=20;
+		xNegative=false;
+		yNegative=false;
+		time=0;
+		brickReset(); //Jedina nepoznanica među ovim linijama koju ranije nismo objasnili je funkcija brickReset(). Nju pozivamo jer želimo ponovo da iscrtamo cigle za novu igru.
+	}else 
+		active=false; //Ukoliko korisnik ne želi više da igra postavljamo active na false tako da naša igra više nije aktivna i neće nepotrebno pozivati funkcije
+}
+
+function brickReset(){ //Funkcija brickReset resetuje cigle i dodatne promenljive koje su bitne za novu igru.
+	score = 0; //Najpre skor vraćamo na početnu vrednost 0
+	var brickPositionX=110; //Definišemo početne pozicije za X...
+	var brickPositionY=0; //...kao i za y osu.
+	for(var i=0;i<10;i++){ //Kreiramo petlju sa 10 iteracija zbog prikazivanja 10 cigala
+		if(i%5==0 && i>3){ // Obezbeđujemo prelazak u novi red na svakih 5 cigala. Ovde smo mogli postaviti i jednostavnije testiranje ali želimo da ostavimo prostor za brzu promenu broja cigala
+			brickPositionY+=70; //Da bismo prešči u novi red i da bi se cigle videle kako treba, potrebno je da se pomerimo po Y osi za 70px.
+			brickPositionX=110; //Pozicija po X osi ostaje nepromenljena ali i ovde ostavljamo uredn teren za kasnije izmene na programu.
+		}
+		//Pristupamo kreiranju svake cigle. Ovaj deo se tiče već dobro poznatog gradiva i tako da nećemo ići previše detaljno u objašnjavanje
+		var brick = document.createElement("div"); // Kreiramo ciglu u vidu DIV elementa i smeštamo ga u promenljivu brisk
+		brick.style.backgroundImage = "url('brick.png')"; //Definišemo pozadinisku sličicu za ciglu
+		brick.style.width="70px"; //Podešavamo širinu
+		brick.style.height="70px"; //Podešavamo visinu
+		brick.style.position="absolute"; //Definišemo absolute vrednost za position svojstvo
+		brick.style.top = brickPositionY + "px"; //Preuzimamo ranije kreirane vrednosti da bismo definisali poziciju DIV elementa po Y...
+		brick.style.left = brickPositionX + "px"; //...i po X osi.
+		brickPositionX+=70; //Povećavamo vrednost za brickPositionX za 70 kako bi odgovarala sledećoj cigli koju budemo kreirali
+		clip.appendChild(brick); //Clip je div element koji predstavllja polje za igru. Zato ćemo ovom div elementu dodeliti novog potomka u vidu cigle koju smo upravo kreirali
+		bricks.push(brick); //Takođe, ovu istu ciglu dodajemo i nizu brisks kako bismo na kraju imali sve blokove smeštene u ovaj niz.
+	}
+}
+
+function brickCollisionCheck(bricks, object){ //Ovom funkcijom proveravamo dali je došlo od udarca u ciglu
+//funcija prihvata niz cigala koje trenutno postoje u igri kao i kuglu
+	for(var i=0;i<bricks.length;i++){ //Kako je potrebno izvršiti proveru za svaku kuglu pravimo onoliko iteracija kroz petlju koliko kugli i ima
+	//Prva dva uslova provera se sastoje u sabiranju razmaka koji cigla ima od gornje ivice i od njene same visine kako bismo dobili ukupnu visinu.
+	//Kada dođemo do ove visine utvrđujemo da li se ona poklapa, odnosno da li je veća od udaljenosti kugle od gornje ivice u tom trenutku.
+	//Ovo bis e moglo poklopiti i onda kada se kugla i cigla poklapaju po y ali ne i po x osi. Zato moramo proveriti da li ima i ovog poklapanja te isto testiranje vršimo y osu.
+		if(parseInt(bricks[i].style.top)+parseInt(bricks[i].style.height)>parseInt(object.style.top)&&
+		parseInt(bricks[i].style.left)+parseInt(bricks[i].style.width)>parseInt(object.style.left)&&
+		parseInt(bricks[i].style.left)<parseInt(object.style.left)+parseInt(object.style.width) &&
+		parseInt(bricks[i].style.top)<parseInt(object.style.top)+parseInt(object.style.height)
+		){
+		//Ukoliko se ovo poklapanje ostvarilo znači da ne došlo do udarca i da treba tu ciglu skloniti, zato pozivamo funkciju brickHit() i prosleđujemo joj ciglu kod koje je udarac zapažen
+		//Radi optimizacije bismo ovde mogli iskočiti iz for petlje jer nije moguće da kugla istovremeno udari dve cigle u istom frejmu ali ovde ne želimo dodatno da komplikujemo kod
+			brickHit(bricks[i]);
+			score += 10; //ne treba zaboraviti dodavanje bodova korisniku zbog pogotka u ciglu te zbog toga povećavamo skor za 10
+			scoreText.innerHTML = score; //Na kraju novi smor možemo ispisati na strani
+		}
+	}
+}
+
+function collisionCheck(object1, object2, cbFunc){ //Ovom funkcijom proveravamo da li je kugla udarila u ploćicu i ova funkcija prihvata kuglu, pločicu i funkciju koju će pozvati ukoliko se podudaranje
+//utvrdi
+//Proveru uslova vršimo isto kao kod poklapanja udarca sa kugle i cigle u funkciju brickCollisionCheck()
+	if(parseInt(object1.style.top)+parseInt(object1.style.height)>parseInt(object2.style.top)&&
+	parseInt(object1.style.left)+parseInt(object1.style.width)>parseInt(object2.style.left)&&
+	parseInt(object1.style.left)<parseInt(object2.style.left)+parseInt(object2.style.width) &&
+	parseInt(object1.style.top)<parseInt(object2.style.top)+parseInt(object2.style.height))
+		cbFunc();
+}
+
+function frameRender(){ //funkcija frameRender ima za cilj da ispita trenutni momenat za svaki render koji se izvrši
+	if(bricks.length<1) gameOver(); //Najpre proveravamo da li je ostalo još cigala. Ukoliko nije, to znači da igru treba prekinuti pozivom funkcije gameOver().
+	//Sve cigle su smeštene u niz bricks te ovaj niz ne sme biti prazan da bi igra mogla biti nastavljena.
+	collisionCheck(result,tile,tileHit); //Pozivamo funkciju collisionCheck kako bismo utrvrdili da li ima sudara među kuglom, okvirom ili pločicom i zato funkciji prosleđujemo upravo ove elemente kao i tileHit
+	//funkciju koja će eventualno biti pozvana ukoliko je kugla udarila u pločicu.
+	brickCollisionCheck(bricks,result); //Proveravamo i da li je kugla udarila u ciglu pozivom funkcije brickCollisionCheck() i prosleđujemo joj niz svih cigala i promenljivu koja označava kuglu.
+	if(parseInt(result.style.left)>=(parseInt(result.parentNode.style.width)-parseInt(result.style.width))-1) //Ako je style.left isti za kuglu i za okvir menjamo smer po x osi
+		xNegative=true;
+	if(parseInt(result.style.top)>=(parseInt(result.parentNode.style.height)-parseInt(result.style.height))-1) //Istu stvar radimo i sa y osom ali ukoliko je došlo do dodira sa donjim delom okvira i kuglom
+	//to znači da je igra završena i da treba aktivirati funkciju gameOver().
+		gameOver();
+		//Ovo do sada su bile provere za desnu i donju ivicu, a što se tiče gornje i leve njih ćemo utvrditi jednostavnom proverom style.left za kuglu koja ne sme biti jednaka ili manja od 0.
+		//Ukoliko se ovo ipak doodi znači da je došlo do udarca sa ivicom i da treba da promenimo smer kretanja kugle.
+	if(parseInt(result.style.left)<=0)
+		xNegative=false;
+	if(parseInt(result.style.top)<=0)
+		yNegative=false;
+	if(!xNegative) //Sada smo sigurni da je pozicija kugle pažljivo ispitana i možemo je pomeriti ja 1 frejm te ako je negacija za xNegative TRUE vršimo inkrementaciju posX, a ako je FALSE vršimo dekrementaciju
+		posX++;
+	else
+		posX--;
+	if(!yNegative) //...istu stvar vršimo i sa pozicijom za Y
+		posY++;
+	else
+		posY--;
+	result.style.left = posX+"px"; //Sada konačno možemo da izvršimo pomeraj po x...
+	result.style.top = posY+"px"; //...i y osi.
+}
+
+window.onkeydown=function(e){ //Naša pločica će se pomerati komandama na tastaturi te zato utvrđujemo ove događaje
+	if(e.keyCode==37){ //Nakon svakog pritska tastera na tastaturi proveravamo da li se radi u keyCode-u 37 što je strelica levo ili je keyCode 39 što je strelica desno
+	//U zavisnosti od toga vršimo pomeraj za 10px na jednu ili drugu stranu
+		if(parseInt(tile.style.left)>0)
+			tile.style.left = (parseInt(tile.style.left)-10)+"px";
+	  }
+	  
+	if(e.keyCode==39){
+		if(parseInt(tile.style.left)<(parseInt(clip.style.width)-parseInt(tile.style.width))-1)
+			tile.style.left = (parseInt(tile.style.left)+10)+"px";
+		}
+}
+
+var result = document.createElement("div"); //Sa obzirom na to da će rezultat koji vrati naš program, odnosno čitav scenario koji vidimo na ekranu, zavisiti od pozicije vatrene lopte koja se kreće
+//napravićemo ovu loptu u vidu div elementa i dodeliti joj id: result.
+result.id='result'; //Podešavamo vrednost ID atributa za element
+result.style.width="15px"; //Podešavamo širinu...
+result.style.height="15px"; //...i visinu elementa
+result.style.backgroundImage = "url('fire.gif')"; //Definišemo pozadinsku slićicu u vidu GIF animacije tako da postignemo efekat okretanja vatrene kugle
+result.style.position="absolute"; //I naravno, podešvamo absolute vrednost za position svojstvo elementa kako bi se div mogao bez problema kretati
+
+var clip = document.createElement("div"); //Kreiramo novi element koji će biti matični DIV element za našu igru jer će se unutr ovog diva gotovo sve drugo odvijati
+clip.style.border="1px black solid"; //Podšavamo ivicu od 1 piksela, crne boje i biramo potpuno ispunjen tip linije
+//clip.style.backgroundColor="white"; //Ukoliko ne želite da postavljate pozadinsku sliku za div ovde biste mogli podesiti samo boju
+clip.style.width="600px"; //Standardno podešavamo širinu...
+clip.style.height="500px"; //...i visinu
+clip.style.backgroundImage = "url('cloud.gif')"; //Zatim definišemo sličicu koja će biti u pozadini div elementa
+clip.style.top="3px"; //Radi stilizacije odvajamo malo element od gornje ivice
+clip.style.position="absolute"; //Na kraju standardno definišemo poziciju na absolute
+
+var tile = document.createElement("div"); //Sada moćemo kreirati pločicu za igru u vidu div elementa za koji na standardan način podešavamo osnovne osobine
+tile.setAttribute("id", "tile");
+tile.style.border="1px black solid";
+tile.style.width="50px";
+tile.style.height="10px";
+tile.style.position="absolute";
+tile.style.backgroundColor = "red";
+tile.style.top = (parseInt(clip.style.height)-parseInt(tile.style.height))-1 + "px";
+tile.style.left = 0+"px";
+
+document.body.appendChild(clip); //body elementu dodajemo glani div za igru
+brickReset(); //Pozivmo funkciju brickReset() kojim iscrtavamo cigle i vraćamo skor na 0
+clip.appendChild(result); //Div-u koji predstavlja naš poligon za izgru dodajemo kuglu koja se kreće
+clip.appendChild(tile); //.. kao i pločicu za igru
+mainLoop(); //Pozivamo funkciju mainLoop kako bismo započeli igru
+
+</script>
+</body>
+</html>
